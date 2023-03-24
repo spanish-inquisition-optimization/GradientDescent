@@ -28,7 +28,7 @@ def find_upper_bound(f):
 
 
 def fixed_step_search(step_length):
-    return lambda f, derivative: step_length # * derivative(0)
+    return lambda f, derivative: step_length  # * derivative(0)
 
 
 def bin_search(f, derivative):
@@ -86,12 +86,20 @@ def fibonacci_search(n_iters):
 
     return search
 
+
 # TODO: n-ary search through log space?
+
+def coordinate_vector_like(coordinate_index, reference):
+    res = np.zeros_like(reference)
+    res[coordinate_index] = 1
+    return res
 
 
 def symmetric_gradient_computer(f, h=precision):
     def computer(x):
-        n = x.size
-        return (f(x[:, newaxis] + h * np.eye(n)) - f(x[:, newaxis] - h * np.eye(n))) / (2 * h)
+        # This trick only works on functions defined in terms of scalar (or dimension-independent) np operations
+        # which can thus be vectorized…
+        # return (f(x[:, newaxis] + h * np.eye(n)) - f(x[:, newaxis] - h * np.eye(n))) / (2 * h)
+        return np.array([(f(x + h * coordinate_vector_like(i, x)) - f(x - h * coordinate_vector_like(i, x))) / (2 * h) for i in range(x.size)])
 
     return computer
