@@ -27,7 +27,7 @@ def find_upper_bound(f):
 
 
 def fixed_step_search(step_length):
-    return lambda f, derivative: step_length  # * derivative(0)
+    return lambda f, derivative: step_length # * derivative(0)
 
 
 def bin_search(f, derivative):
