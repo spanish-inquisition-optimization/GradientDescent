@@ -6,7 +6,7 @@ precision = 1e-5
 
 
 def gradient_descent(target_function, gradient_function, x0, linear_search, terminate_condition):
-    points = [x0]
+    points = [np.array(x0)]
     while not terminate_condition(target_function, points):
         last_point = points[-1]
         g = np.array(gradient_function(last_point))
@@ -84,3 +84,5 @@ def fibonacci_search(n_iters):
         return r
 
     return search
+
+# TODO: log n-ary search
