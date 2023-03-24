@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants
+from numpy import newaxis
 
 precision = 1e-5
 
@@ -85,4 +86,12 @@ def fibonacci_search(n_iters):
 
     return search
 
-# TODO: log n-ary search
+# TODO: n-ary search through log space?
+
+
+def symmetric_gradient_computer(f, h=precision):
+    def computer(x):
+        n = x.size
+        return (f(x[:, newaxis] + h * np.eye(n)) - f(x[:, newaxis] - h * np.eye(n))) / (2 * h)
+
+    return computer
