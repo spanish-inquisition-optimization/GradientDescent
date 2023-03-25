@@ -20,13 +20,14 @@ class QuadraticForm(NamedTuple):
         return (x @ self.matrix @ x[:, newaxis])[0]
 
     def gradient_function(self):
-        return lambda x: 2 * self.matrix @ x[:, newaxis]
+        return lambda x: (2 * self.matrix @ x[:, newaxis])[:, 0]
 
 
-def random_basis(n):
+def random_orthonormal_basis(n):
     res = None
-    while res is None or np.linalg.det(res) == 0:
+    while res is None or np.linalg.matrix_rank(res) < n:
         res = np.random.rand(n, n)
+        res = np.linalg.qr(res)[0]
     return res
 
 
@@ -48,7 +49,9 @@ def generate_positive_definite_quadratic_form(dimensions, condition_number, eige
     The greatest eigenvalue is always `condition_number`.
     The eigenvalues in between are random.
 
-    Firstly the representation of the matrix in the eigenbasis is generated and then transformed to the canonical basis.
+    Firstly the representation of the matrix in the eigenbasis
+    (which must be orthonormal to basis make basis and form transformations equivalent)
+    is generated and then transformed to the canonical basis.
     """
 
     assert condition_number >= 1
@@ -65,19 +68,17 @@ def generate_positive_definite_quadratic_form(dimensions, condition_number, eige
     # Now we transform the matrix TO the canonical basis
     # Transposition matrix from canonical basis to B is just matrix `B`
     T_C_B = B
-    T_B_C = np.linalg.inv(T_C_B)
+    T_B_C = B.T  # Just like `np.linalg.inv(T_C_B)` but faster
     return QuadraticForm(T_C_B @ matrix_in_basis @ T_B_C)
 
 
-def evaluator(generator: Callable[[], Any], computation: Callable[[Any], float], n_times) -> float:
-    """
-    Evaluates the computation on the result of the generator n_times times and returns the average result.
-    """
-    return sum(computation(generator()) for _ in range(n_times)) / n_times
+def average(computation: Callable[[], float], n_times) -> float:
+    return sum(computation() for _ in range(n_times)) / n_times
 
 
-def average_iterations_until_convergence(matrix_generator: Callable[[], QuadraticForm], optimizer: Callable, n_times) -> float:
-    return evaluator(
-        matrix_generator,
-        lambda f: len(optimizer(f, f.gradient_function(), random_normalized_vector(f.n), fibonacci_search(30), precision_termination_condition))
-        , n_times)
+def average_iterations_until_convergence(form_generator: Callable[[], QuadraticForm], optimizer: Callable, n_times) -> float:
+    def computation():
+        f = form_generator()
+        return len(optimizer(f, f.gradient_function(), random_normalized_vector(f.n), fibonacci_search(30), precision_termination_condition))
+
+    return average(computation, n_times)
