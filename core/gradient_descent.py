@@ -95,6 +95,10 @@ def fibonacci_search(n_iters):
 
 # TODO: n-ary search through log space?
 
+
+def precision_termination_condition(_target_function: Callable[[np.ndarray], float], points: List[np.ndarray]):
+    return len(points) > 2 and np.linalg.norm(points[-1] - points[-2]) < precision
+
 def coordinate_vector_like(coordinate_index: int, reference: np.ndarray):
     res = np.zeros_like(reference)
     res[coordinate_index] = 1
@@ -103,8 +107,8 @@ def coordinate_vector_like(coordinate_index: int, reference: np.ndarray):
 
 def symmetric_gradient_computer(f: Callable[[np.ndarray], float], h: float = precision):
     def computer(x):
-        # This trick only works on functions defined in terms of scalar (or dimension-independent) np operations
-        # which can thus be vectorized…
+        # This trick only works on functions defined
+        # in terms of scalar (or dimension-independent) np operations (aka ufuncs) which can thus be vectorized…
         # return (f(x[:, newaxis] + h * np.eye(n)) - f(x[:, newaxis] - h * np.eye(n))) / (2 * h)
 
         return np.array([
