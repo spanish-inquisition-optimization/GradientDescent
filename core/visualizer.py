@@ -71,17 +71,32 @@ def visualize_optimizing_process(f, roi: SearchRegion2d, points: np.ndarray[np.n
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
     ax1.plot(vectorized_f(points.T))
+    ax1.set_title(f"Function value")
     ax1.grid()
 
     if true_minimum is not None:
         ax2.plot(vectorized_f(points.T) - true_minimum)
         ax2.set_yscale("log", nonpositive='clip')
+        ax2.set_title(f"Logarithmic error")
         ax2.grid()
 
     ax3.plot(points[:, 0], points[:, 1], 'o-')
     print(f"Optimizer trajectory:")
     print(points)
     print(f"Best value found: x* = {points[-1]} with f(x*) = {vectorized_f(points[-1])}")
+
     levels = np.concatenate((vectorized_f(points.T), np.linspace(-1, 1, 100)))
     ax3.contour(X, Y, vectorized_f(np.stack((X, Y))), levels=sorted(set(levels)))
+    ax3.set_title(f"Visited contours")
     # ax3.contour(X, Y, f([X, Y]), levels=sorted(set([f(p) for p in points])))
+
+
+def plot_section_graphs(f, discrete_param_values: np.ndarray[float], continuous_param_values: np.ndarray[float]):
+    fig, plots = plt.subplots(1, len(discrete_param_values))
+    for i, discrete_param_value in enumerate(discrete_param_values):
+        plots[i].plot(continuous_param_values, [f(discrete_param_value, x) for x in continuous_param_values])
+        plots[i].set_title(f"Section at {discrete_param_value}")
+        plots[i].set_yscale("log")
+        plots[i].set_xscale("log")
+
+        plots[i].grid()

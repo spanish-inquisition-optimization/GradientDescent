@@ -1,8 +1,12 @@
+import asyncio
 from random import random, uniform
 from typing import Callable, NamedTuple, Tuple, Any
 
 import numpy as np
+import ray
 from numpy import newaxis
+
+from joblib import Parallel, delayed
 
 from core.gradient_descent import fibonacci_search, precision_termination_condition
 
@@ -76,9 +80,29 @@ def average(computation: Callable[[], float], n_times) -> float:
     return sum(computation() for _ in range(n_times)) / n_times
 
 
-def average_iterations_until_convergence(form_generator: Callable[[], QuadraticForm], optimizer: Callable, n_times) -> float:
+def iteration_count_computer(form_generator: Callable[[], QuadraticForm], optimizer: Callable) -> Callable[[], float]:
     def computation():
         f = form_generator()
-        return len(optimizer(f, f.gradient_function(), random_normalized_vector(f.n), fibonacci_search(30), precision_termination_condition))
+        return len(optimizer(f, f.gradient_function(), random_normalized_vector(f.n), fibonacci_search(10), precision_termination_condition))
 
-    return average(computation, n_times)
+    return computation
+
+
+def average_iterations_until_convergence(form_generator: Callable[[], QuadraticForm], optimizer: Callable, n_times) -> float:
+    return average(iteration_count_computer(form_generator, optimizer), n_times)
+
+
+def logspace_range(start, stop, n, **kwargs):
+    return np.logspace(np.log10(start), np.log10(stop), n, base=10, **kwargs)
+
+
+def compute_2d_grid(f, discrete_values, continuous_values):
+    # loop = asyncio.get_event_loop()
+    # futures = [f.remote(d, c) for d in discrete_values for c in continuous_values]
+    # return ray.get(futures)
+    # computers = [f]
+    # print(computers)
+    # looper = asyncio.gather(*computers)
+    #
+    # return loop.run_until_complete(looper)
+    return []
