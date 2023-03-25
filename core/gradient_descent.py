@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import scipy.constants
 from numpy import newaxis
 
-precision = 1e-5
+precision = 1e-3
 
 
 def gradient_descent(target_function: Callable[[np.ndarray], float],
