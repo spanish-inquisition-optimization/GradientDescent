@@ -94,15 +94,3 @@ def average_iterations_until_convergence(form_generator: Callable[[], QuadraticF
 
 def logspace_range(start, stop, n, **kwargs):
     return np.logspace(np.log10(start), np.log10(stop), n, base=10, **kwargs)
-
-
-def compute_2d_grid(f, discrete_values, continuous_values):
-    # loop = asyncio.get_event_loop()
-    # futures = [f.remote(d, c) for d in discrete_values for c in continuous_values]
-    # return ray.get(futures)
-    # computers = [f]
-    # print(computers)
-    # looper = asyncio.gather(*computers)
-    #
-    # return loop.run_until_complete(looper)
-    return []
