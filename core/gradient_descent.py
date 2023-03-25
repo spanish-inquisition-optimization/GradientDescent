@@ -1,3 +1,5 @@
+from typing import Callable, List
+
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants
@@ -6,7 +8,11 @@ from numpy import newaxis
 precision = 1e-5
 
 
-def gradient_descent(target_function, gradient_function, x0, linear_search, terminate_condition):
+def gradient_descent(target_function: Callable[[np.ndarray], float],
+                     gradient_function: Callable[[np.ndarray], np.ndarray],
+                     x0: np.ndarray,
+                     linear_search: Callable[[Callable[[float], float], Callable[[float], float]], float],
+                     terminate_condition: Callable[[Callable[[np.ndarray], float], List[np.ndarray]], bool]):
     points = [np.array(x0)]
     while not terminate_condition(target_function, points):
         last_point = points[-1]
@@ -19,7 +25,7 @@ def gradient_descent(target_function, gradient_function, x0, linear_search, term
     return points
 
 
-def find_upper_bound(f):
+def find_upper_bound(f: Callable[[float], float]):
     original = f(0)
     r = 1
     while f(r) < original:
@@ -31,7 +37,7 @@ def fixed_step_search(step_length):
     return lambda f, derivative: step_length  # * derivative(0)
 
 
-def bin_search(f, derivative):
+def bin_search(f: Callable[[float], float], derivative: Callable[[float], float]):
     # assume derivative(0) < 0 and derivative is rising
     l = 0
     r = find_upper_bound(f)
@@ -45,7 +51,7 @@ def bin_search(f, derivative):
     return r
 
 
-def golden_ratio_search(f, _derivative):
+def golden_ratio_search(f: Callable[[float], float], _derivative: Callable[[float], float]):
     l = 0
     r = find_upper_bound(f)
 
@@ -89,17 +95,21 @@ def fibonacci_search(n_iters):
 
 # TODO: n-ary search through log space?
 
-def coordinate_vector_like(coordinate_index, reference):
+def coordinate_vector_like(coordinate_index: int, reference: np.ndarray):
     res = np.zeros_like(reference)
     res[coordinate_index] = 1
     return res
 
 
-def symmetric_gradient_computer(f, h=precision):
+def symmetric_gradient_computer(f: Callable[[np.ndarray], float], h: float = precision):
     def computer(x):
         # This trick only works on functions defined in terms of scalar (or dimension-independent) np operations
         # which can thus be vectorized…
         # return (f(x[:, newaxis] + h * np.eye(n)) - f(x[:, newaxis] - h * np.eye(n))) / (2 * h)
-        return np.array([(f(x + h * coordinate_vector_like(i, x)) - f(x - h * coordinate_vector_like(i, x))) / (2 * h) for i in range(x.size)])
+
+        return np.array([
+                (f(x + h * coordinate_vector_like(i, x)) - f(x - h * coordinate_vector_like(i, x))) / (2 * h)
+                for i in range(x.size)
+            ])
 
     return computer
