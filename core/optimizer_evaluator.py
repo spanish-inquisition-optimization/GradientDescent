@@ -3,10 +3,7 @@ from random import random, uniform
 from typing import Callable, NamedTuple, Tuple, Any
 
 import numpy as np
-import ray
 from numpy import newaxis
-
-from joblib import Parallel, delayed
 
 from core.gradient_descent import fibonacci_search, precision_termination_condition
 
@@ -80,16 +77,16 @@ def average(computation: Callable[[], float], n_times) -> float:
     return sum(computation() for _ in range(n_times)) / n_times
 
 
-def iteration_count_computer(form_generator: Callable[[], QuadraticForm], optimizer: Callable) -> Callable[[], float]:
+def iteration_count_computer(form_generator: Callable[[], QuadraticForm], optimizer: Callable, line_searcher) -> Callable[[], float]:
     def computation():
         f = form_generator()
-        return len(optimizer(f, f.gradient_function(), random_normalized_vector(f.n), fibonacci_search(10), precision_termination_condition))
+        return len(optimizer(f, f.gradient_function(), random_normalized_vector(f.n), line_searcher, precision_termination_condition))
 
     return computation
 
 
-def average_iterations_until_convergence(form_generator: Callable[[], QuadraticForm], optimizer: Callable, n_times) -> float:
-    return average(iteration_count_computer(form_generator, optimizer), n_times)
+def average_iterations_until_convergence(form_generator: Callable[[], QuadraticForm], optimizer: Callable, n_times, line_searcher=fibonacci_search(30)) -> float:
+    return average(iteration_count_computer(form_generator, optimizer, line_searcher), n_times)
 
 
 def logspace_range(start, stop, n, **kwargs):
