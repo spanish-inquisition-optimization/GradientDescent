@@ -51,6 +51,25 @@ def bin_search(f: Callable[[float], float], derivative: Callable[[float], float]
     return r
 
 
+def bin_search_with_iters(iters):
+    def search(f: Callable[[float], float], derivative: Callable[[float], float]):
+        # assume derivative(0) < 0 and derivative is rising
+        i = 0
+        l = 0
+        r = find_upper_bound(f)
+
+        while i < iters and r - l > precision and abs(derivative(r)) > precision:
+            m = (l + r) / 2
+            i += 1
+            if derivative(m) < 0:
+                l = m
+            else:
+                r = m
+        return r
+
+    return search
+
+
 def golden_ratio_search(f: Callable[[float], float], _derivative: Callable[[float], float]):
     l = 0
     r = find_upper_bound(f)
@@ -99,6 +118,7 @@ def fibonacci_search(n_iters):
 def precision_termination_condition(_target_function: Callable[[np.ndarray], float], points: List[np.ndarray]):
     return len(points) > 2 and np.linalg.norm(points[-1] - points[-2]) < precision
 
+
 def coordinate_vector_like(coordinate_index: int, reference: np.ndarray):
     res = np.zeros_like(reference)
     res[coordinate_index] = 1
@@ -112,8 +132,8 @@ def symmetric_gradient_computer(f: Callable[[np.ndarray], float], h: float = pre
         # return (f(x[:, newaxis] + h * np.eye(n)) - f(x[:, newaxis] - h * np.eye(n))) / (2 * h)
 
         return np.array([
-                (f(x + h * coordinate_vector_like(i, x)) - f(x - h * coordinate_vector_like(i, x))) / (2 * h)
-                for i in range(x.size)
-            ])
+            (f(x + h * coordinate_vector_like(i, x)) - f(x - h * coordinate_vector_like(i, x))) / (2 * h)
+            for i in range(x.size)
+        ])
 
     return computer
