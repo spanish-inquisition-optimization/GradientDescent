@@ -88,7 +88,8 @@ def visualize_optimizing_process(f, roi: SearchRegion2d, points: np.ndarray[np.n
     levels = np.concatenate((vectorized_f(points.T), np.linspace(-1, 1, 100)))
     ax3.contour(X, Y, vectorized_f(np.stack((X, Y))), levels=sorted(set(levels)))
     ax3.set_title(f"Visited contours")
-    # ax3.contour(X, Y, f([X, Y]), levels=sorted(set([f(p) for p in points])))
+
+    return fig  # For further customization
 
 
 def plot_section_graphs(f, discrete_param_values: np.ndarray[float], continuous_param_values: np.ndarray[float]):
