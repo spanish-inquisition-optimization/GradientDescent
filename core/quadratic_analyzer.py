@@ -14,24 +14,18 @@ def analyze_quadratic(roi, x0, fixed_steps, bin_iters, fib_iters, a, b, c, d, e)
     df = create_quadratic_derivative(a, b, c, d, e)
 
     def visualize_optimizer_with(linear_search):
-        visualize_optimizing_process(f, roi, np.array(gradient_descent(f, df, x0, linear_search, lambda f, points: len(points) > 20)))
+        return visualize_optimizing_process(f, roi, np.array(gradient_descent(f, df, x0, linear_search, lambda f, points: len(points) > 20)))
 
     print("Function plot:")
     visualize_function_3d(f, roi)
 
-    for step in fixed_steps:
-        print(f"Optimizing with fixed step = {step}:")
-        visualize_optimizer_with(fixed_step_search(step))
+    cases = [(f"Optimizing with fixed step = {step}", fixed_step_search(step)) for step in fixed_steps] + [
+        ("Optimizing with binary search", bin_search),
+        (f"Optimizing with binary search limited by {bin_iters} iterations", bin_search_with_iters(bin_iters)),
+        ("Optimizing with golden ration", golden_ratio_search),
+        (f"Optimizing with fibonacci search limited by {fib_iters} iterations:", fibonacci_search(fib_iters))
+    ]
 
-    print("Optimizing with binary search")
-    visualize_optimizer_with(bin_search)
-
-    print(f"Optimizing with binary search limited by {bin_iters} iterations:")
-    visualize_optimizer_with(bin_search_with_iters(bin_iters))
-
-    print("Optimizing with golden ration")
-    visualize_optimizer_with(golden_ratio_search)
-
-    print(f"Optimizing with fibonacci search limited by {fib_iters} iterations:")
-    visualize_optimizer_with(fibonacci_search(fib_iters))
-
+    for title, linear in cases:
+        print(title)
+        visualize_optimizer_with(linear).suptitle(title)
