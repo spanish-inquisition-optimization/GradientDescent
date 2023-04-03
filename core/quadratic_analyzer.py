@@ -28,7 +28,8 @@ def analyze_quadratic(roi, x0, fixed_steps, bin_iters, fib_iters, a, b, c, d, e)
         ("Optimizing with binary search", bin_search),
         (f"Optimizing with binary search limited by {bin_iters} iterations", bin_search_with_iters(bin_iters)),
         ("Optimizing with golden ration", golden_ratio_search),
-        (f"Optimizing with fibonacci search limited by {fib_iters} iterations:", fibonacci_search(fib_iters))
+        (f"Optimizing with fibonacci search limited by {fib_iters} iterations:", fibonacci_search(fib_iters)),
+        ("Optimizing with backtracking method", wolfe_conditions_search(0.1, 0.9))
     ]
 
     for title, linear in cases:
