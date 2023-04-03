@@ -14,7 +14,12 @@ def analyze_quadratic(roi, x0, fixed_steps, bin_iters, fib_iters, a, b, c, d, e)
     df = create_quadratic_derivative(a, b, c, d, e)
 
     def visualize_optimizer_with(linear_search):
-        return visualize_optimizing_process(f, roi, np.array(gradient_descent(f, df, x0, linear_search, lambda f, points: len(points) > 20)))
+        if d == 0 and e == 0:
+            true_min = 0
+        else:
+            true_min = None
+
+        return visualize_optimizing_process(f, roi, np.array(gradient_descent(f, df, x0, linear_search, lambda f, points: len(points) > 20)), true_min)
 
     print("Function plot:")
     visualize_function_3d(f, roi)
