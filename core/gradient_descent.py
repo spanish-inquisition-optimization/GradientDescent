@@ -112,6 +112,35 @@ def fibonacci_search(n_iters):
     return search
 
 
+def wolfe_conditions_search(c1, c2):
+    assert 0 < c1 < c2 < 1
+
+    def search(f: Callable[[float], float], derivative: Callable[[float], float]):
+        # Need to find x such that:
+        # 1) f(x) <= f(0) + c1 * x * derivative(0)
+        # 2) derivative(x) >= c2 * derivative(0)
+        initial_value = f(0)
+        initial_slope = derivative(0)
+        desired_slope = initial_slope * c2
+
+        def desired_descent(x):
+            return initial_value + initial_slope * c1 * x
+
+        left = 0
+        right = find_upper_bound(lambda x: f(x) - desired_descent(x) + initial_value)
+        while right - left > precision:
+            mid = (left + right) / 2
+            if derivative(mid) < desired_slope:
+                left = mid
+            else:
+                right = mid
+                if f(mid) <= desired_descent(mid):
+                    break
+        return right
+
+    return search
+
+
 # TODO: n-ary search through log space?
 
 
