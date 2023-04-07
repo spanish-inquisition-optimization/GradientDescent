@@ -61,7 +61,7 @@ def visualize_function_3d(f, roi: SearchRegion2d):
     return ax.plot_surface(X, Y, AutoVectorizedFunction(f, 1)(np.stack((X, Y))))
 
 
-def visualize_optimizing_process(f, roi: SearchRegion2d, points: np.ndarray[np.ndarray[float]], true_minimum=None):
+def visualize_optimizing_process(f, roi: SearchRegion2d, points, true_minimum=None):
     X, Y = auto_meshgrid(f, roi)
     vectorized_f = AutoVectorizedFunction(f, 1)
 
@@ -85,14 +85,14 @@ def visualize_optimizing_process(f, roi: SearchRegion2d, points: np.ndarray[np.n
     print(points)
     print(f"Best value found: x* = {points[-1]} with f(x*) = {vectorized_f(points[-1])}")
 
-    levels = np.concatenate((vectorized_f(points.T), np.linspace(-1, 1, 100)))
+    levels = vectorized_f(points.T)
     ax3.contour(X, Y, vectorized_f(np.stack((X, Y))), levels=sorted(set(levels)))
     ax3.set_title(f"Visited contours")
 
     return fig  # For further customization
 
 
-def plot_section_graphs(f, discrete_param_values: np.ndarray[float], continuous_param_values: np.ndarray[float]):
+def plot_section_graphs(f, discrete_param_values, continuous_param_values):
     fig, plots = plt.subplots(1, len(discrete_param_values))
     for i, discrete_param_value in enumerate(discrete_param_values):
         plots[i].plot(continuous_param_values, [f(discrete_param_value, x) for x in continuous_param_values])
