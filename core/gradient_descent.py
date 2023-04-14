@@ -25,6 +25,19 @@ def gradient_descent(target_function: Callable[[np.ndarray], float],
     return points
 
 
+""" Could be:
+def find_upper_bound(f: Callable[[float], float], derivative: Callable[[float], float]):
+    minimal_f = f(0)
+    r = 0.05
+
+    this_f = f(r)
+    while derivative(r) < 0 and this_f < minimal_f:
+        r *= 1.3
+        minimal_f = min(minimal_f, this_f)
+        this_f = f(r)
+
+    return r
+"""
 def find_upper_bound(f: Callable[[float], float]):
     original = f(0)
     r = 1
