@@ -127,7 +127,7 @@ def fibonacci_search(n_iters):
         x2 = l + length * fibs[-2] / fibs[-1]
         y1, y2 = f(x1), f(x2)
         for k in range(n_iters - 2):
-            if f(x1) > f(x2):
+            if y1 > y2:
                 l = x1
                 x1 = x2
                 x2 = l + (r - l) * fibs[-k - 3] / fibs[-k - 2]
