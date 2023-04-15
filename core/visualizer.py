@@ -1,8 +1,10 @@
-from typing import Tuple, NamedTuple
+from typing import Tuple, NamedTuple, Callable
 
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy import newaxis
+
+from core.gradient_descent import symmetric_gradient_computer, gradient_descent
 
 
 class SearchRegion2d(NamedTuple):
@@ -101,3 +103,47 @@ def plot_section_graphs(f, discrete_param_values, continuous_param_values):
         plots[i].set_xscale("log")
 
         plots[i].grid()
+
+
+def test_linear_search(linear_search: Callable[[Callable[[float], float], Callable[[float], float]], float]):
+    alpha = 5
+
+    def quadratic(x):
+        return alpha * (x[0] - 5) ** 2 + (x[1] - 7) ** 2
+
+    def quadratic_derivative(x):
+        return np.array([2 * alpha * (x[0] - 5), 2 * (x[1] - 7)])
+
+    quadratic_roi = SearchRegion2d((-50, 50), (-50, 50))
+
+    def trig(x):
+        return np.sin(0.5 * x[0] ** 2 - 0.25 * x[1] ** 2 + 3) * np.cos(2 * x[0] + 1 - np.exp(x[1]))
+
+    trig_derivative = symmetric_gradient_computer(trig)
+    trig_roi = SearchRegion2d((-1.5, 1.5), (-1.5, 2))
+
+    from scipy.optimize import rosen, rosen_der as rosen_derivative
+    rosen_roi = SearchRegion2d((-2, 1), (-1, 1))
+
+    class SearchSetup(NamedTuple):
+        f: Callable[[np.ndarray], float]
+        gradient: Callable[[np.ndarray], np.ndarray]
+        roi: SearchRegion2d
+        num_steps: int
+        start_point: np.ndarray
+        true_minimum: float = None
+
+    setups = [SearchSetup(quadratic, quadratic_derivative, quadratic_roi, 50, np.array([-20, -20]), 0),
+              SearchSetup(trig, trig_derivative, trig_roi, 100, np.array([-0.1, -0.4])),
+              SearchSetup(rosen, rosen_derivative, rosen_roi, 20, np.array([-1.5, 0.25]), 0)
+              ]
+
+    for setup in setups:
+        visualize_function_3d(setup.f, setup.roi)
+        visualize_optimizing_process(setup.f, setup.roi,
+                                     np.array(gradient_descent(
+                                         setup.f,
+                                         setup.gradient,
+                                         setup.start_point,
+                                         linear_search,
+                                         lambda f, points: len(points) > setup.num_steps)), setup.true_minimum)

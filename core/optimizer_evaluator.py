@@ -105,6 +105,13 @@ def n_calls_mocker(f):
     return mocked
 
 
+def smoothly_criminally_call(f, *args, **kwargs):
+    res = f(*args, **kwargs)
+    if hasattr(f, "n_calls"):
+        f.n_calls -= 1
+    return res
+
+
 if __name__ == '__main__':
     @n_calls_mocker
     def f(x):
@@ -112,5 +119,7 @@ if __name__ == '__main__':
 
     for i in range(5):
         f(i)
+
+    smoothly_criminally_call(f, 12412)
 
     assert f.n_calls == 5
