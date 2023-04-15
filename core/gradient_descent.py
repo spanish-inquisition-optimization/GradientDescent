@@ -9,7 +9,7 @@ class SearchRegion2d(NamedTuple):
     y_range: Tuple[float, float]
 
 
-precision = 1e-5
+precision = 1e-9
 
 
 def gradient_descent(target_function: Callable[[np.ndarray], float],
@@ -96,14 +96,22 @@ def bin_search_with_iters(iters):
 def golden_ratio_search(f: Callable[[float], float], _derivative: Callable[[float], float]):
     l = 0
     r = find_upper_bound(f)
+    delta = (r - l) / scipy.constants.golden
+    x1, x2 = r - delta, l + delta
+    f1, f2 = f(x1), f(x2)
 
     while r - l > precision:
-        delta = (r - l) / scipy.constants.golden
-        x1, x2 = r - delta, l + delta
-        if f(x1) < f(x2):
+        if f1 < f2:
             r = x2
+            f2 = f1
+            x1, x2 = r - ((r - l) / scipy.constants.golden), x1
+            f1 = f(x1)
         else:
             l = x1
+            f1 = f2
+            x1, x2 = x2, l + ((r - l) / scipy.constants.golden)
+            f2 = f(x2)
+
     return r
 
 
