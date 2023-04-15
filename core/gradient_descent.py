@@ -1,9 +1,13 @@
-from typing import Callable, List
+from typing import Callable, List, NamedTuple, Tuple
 
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.constants
-from numpy import newaxis
+
+
+class SearchRegion2d(NamedTuple):
+    x_range: Tuple[float, float]
+    y_range: Tuple[float, float]
+
 
 precision = 1e-5
 
@@ -17,7 +21,8 @@ def gradient_descent(target_function: Callable[[np.ndarray], float],
     while not terminate_condition(target_function, points):
         last_point = points[-1]
         g = np.array(gradient_function(last_point))
-        if np.linalg.norm(g) == 0:
+        norm = np.linalg.norm(g)
+        if norm == 0 or norm > 1e20:
             return points
         next_point = last_point - g * linear_search(lambda l: target_function(last_point - g * l),
                                                     lambda l: -np.dot(g, gradient_function(last_point - g * l)))
@@ -38,11 +43,16 @@ def find_upper_bound(f: Callable[[float], float], derivative: Callable[[float], 
 
     return r
 """
+
+
 def find_upper_bound(f: Callable[[float], float]):
-    original = f(0)
+    prev_value = f(0)
+    cur_value = f(1)
     r = 1
-    while f(r) < original:
-        r *= 2
+    while cur_value <= prev_value:
+        prev_value = cur_value
+        r *= 1.2
+        cur_value = f(r)
     return r
 
 
@@ -139,17 +149,41 @@ def wolfe_conditions_search(c1, c2):
         def desired_descent(x):
             return initial_value + initial_slope * c1 * x
 
-        left = 0
-        right = find_upper_bound(lambda x: f(x) - desired_descent(x) + initial_value)
-        while right - left > precision:
-            mid = (left + right) / 2
-            if derivative(mid) < desired_slope:
-                left = mid
-            else:
-                right = mid
-                if f(mid) <= desired_descent(mid):
-                    break
-        return right
+        def zoom(left, right):
+            assert(left < right)
+            while True:
+                mid = (left + right) / 2
+                value = f(mid)
+                if value > desired_descent(mid) or value >= f(left):
+                    right = mid
+                else:
+                    slope = derivative(mid)
+                    if abs(slope) <= -desired_slope:
+                        return mid
+                    elif slope * (right - left) >= 0:
+                        right = left
+                    left = mid
+
+        max_step = 1
+        while f(max_step) <= desired_descent(max_step):
+            max_step *= 1.3
+
+        prev_step = 0
+        cur_step = max_step / 2
+        prev_value = initial_value
+
+        while True:
+            cur_value = f(cur_step)
+            if cur_value > desired_descent(cur_step) or (prev_step != 0 and cur_value >= prev_value):
+                return zoom(prev_step, cur_step)
+            cur_slope = derivative(cur_step)
+            if abs(cur_slope) <= -desired_slope:
+                return cur_step
+            if cur_slope >= 0:
+                return zoom(cur_step, prev_step)
+            prev_step = cur_step
+            prev_value = cur_value
+            cur_step = (prev_step + max_step) / 2
 
     return search
 
