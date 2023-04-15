@@ -134,9 +134,9 @@ def test_linear_search(linear_search: Callable[[Callable[[float], float], Callab
         true_minimum: float = None
 
     setups = [SearchSetup(quadratic, quadratic_derivative, quadratic_roi, 50, np.array([-20, -20]), 0),
-              SearchSetup(trig, trig_derivative, trig_roi, 300, np.array([-0.1, -0.4])),
-              SearchSetup(rosen, rosen_derivative, rosen_roi, 50, np.array([-1.5, -1.5]), 0)
-            ]
+              SearchSetup(trig, trig_derivative, trig_roi, 100, np.array([-0.1, -0.4])),
+              SearchSetup(rosen, rosen_derivative, rosen_roi, 20, np.array([-1.5, 0.25]), 0)
+              ]
 
     for setup in setups:
         visualize_function_3d(setup.f, setup.roi)
