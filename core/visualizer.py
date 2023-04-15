@@ -83,8 +83,8 @@ def visualize_optimizing_process(f, roi: SearchRegion2d, points, true_minimum=No
         ax2.grid()
 
     ax3.plot(points[:, 0], points[:, 1], 'o-')
-    print(f"Optimizer trajectory:")
-    print(points)
+    # print(f"Optimizer trajectory:")
+    # print(points)
     print(f"Best value found: x* = {points[-1]} with f(x*) = {vectorized_f(points[-1])}")
 
     levels = vectorized_f(points.T)

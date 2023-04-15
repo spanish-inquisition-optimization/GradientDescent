@@ -21,7 +21,7 @@ def analyze_quadratic(roi, x0, fixed_steps, bin_iters, fib_iters, a, b, c, d, e)
 
         return visualize_optimizing_process(f, roi, np.array(gradient_descent(f, df, x0, linear_search, lambda f, points: len(points) > 20)), true_min)
 
-    print("Function plot:")
+    # print("Function plot:")
     visualize_function_3d(f, roi)
 
     cases = [(f"Optimizing with fixed step = {step}", fixed_step_search(step)) for step in fixed_steps] + [
