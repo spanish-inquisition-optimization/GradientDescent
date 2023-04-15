@@ -57,7 +57,7 @@ def find_upper_bound(f: Callable[[float], float]):
 
 
 def fixed_step_search(step_length):
-    return lambda f, derivative: step_length  # * derivative(0)
+    return lambda f, derivative: step_length
 
 
 def bin_search(f: Callable[[float], float], derivative: Callable[[float], float]):
